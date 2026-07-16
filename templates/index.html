@@ -1,0 +1,810 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema Inteligente de Gestión de Nómina y Beneficios</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <style>
+        /* Estilos Globales y Paleta Profesional (Azules, Grises y Menta) */
+        * {
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: #f4f6f9;
+            color: #333333;
+            display: block;
+        }
+
+        /* Contenedor Principal en Bloques */
+        .app-container {
+            width: 100%;
+            min-height: 100vh;
+            position: relative;
+        }
+
+        /* Encabezado */
+        header {
+            background-color: #1e293b;
+            color: #ffffff;
+            padding: 15px 30px;
+            border-bottom: 4px solid #0ea5e9;
+        }
+
+        header h1 {
+            font-size: 20px;
+            font-weight: 600;
+            display: inline-block;
+            vertical-align: middle;
+        }
+
+        header .badge {
+            background-color: #0ea5e9;
+            color: white;
+            font-size: 12px;
+            padding: 4px 8px;
+            border-radius: 4px;
+            margin-left: 10px;
+            display: inline-block;
+            vertical-align: middle;
+        }
+
+        /* Menú de Navegación por Pestañas */
+        .nav-tabs {
+            background-color: #ffffff;
+            border-bottom: 1px solid #e2e8f0;
+            padding: 0 30px;
+        }
+
+        .tab-button {
+            background: none;
+            border: none;
+            padding: 15px 20px;
+            font-size: 14px;
+            font-weight: 500;
+            color: #64748b;
+            cursor: pointer;
+            display: inline-block;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s ease;
+        }
+
+        .tab-button:hover {
+            color: #0ea5e9;
+        }
+
+        .tab-button.active {
+            color: #0ea5e9;
+            border-bottom: 3px solid #0ea5e9;
+            font-weight: 600;
+        }
+
+        /* Área de Contenido */
+        .content-section {
+            padding: 30px;
+            display: none;
+        }
+
+        .content-section.active {
+            display: block;
+        }
+
+        /* Tarjetas / Paneles */
+        .card {
+            background-color: #ffffff;
+            border-radius: 8px;
+            border: 1px solid #e2e8f0;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+            padding: 25px;
+            margin-bottom: 25px;
+        }
+
+        .card-title {
+            font-size: 16px;
+            color: #1e293b;
+            margin-bottom: 20px;
+            font-weight: 600;
+            border-left: 4px solid #0ea5e9;
+            padding-left: 10px;
+        }
+
+        /* Formularios Estilizados */
+        .form-group {
+            margin-bottom: 15px;
+            display: block;
+            width: 100%;
+        }
+
+        .form-row {
+            width: 100%;
+            margin-bottom: 10px;
+        }
+
+        .form-col {
+            width: 48%;
+            display: inline-block;
+            vertical-align: top;
+            margin-right: 2%;
+        }
+
+        label {
+            display: block;
+            font-size: 13px;
+            font-weight: 500;
+            color: #475569;
+            margin-bottom: 6px;
+        }
+
+        input[type="text"], input[type="number"], select {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid #cbd5e1;
+            border-radius: 6px;
+            font-size: 14px;
+            color: #333333;
+            background-color: #fff;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        input:focus, select:focus {
+            border-color: #0ea5e9;
+        }
+
+        /* Botones */
+        .btn {
+            background-color: #0ea5e9;
+            color: #ffffff;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            display: inline-block;
+        }
+
+        .btn:hover {
+            background-color: #0284c7;
+        }
+
+        .btn-secondary {
+            background-color: #64748b;
+        }
+
+        .btn-secondary:hover {
+            background-color: #475569;
+        }
+
+        /* Interfaz del Chatbot - Dark Mode */
+        .chat-container {
+            border: 1px solid #334155;
+            border-radius: 8px;
+            background-color: #0f172a; /* Fondo oscuro */
+            height: 400px;
+            overflow-y: auto;
+            padding: 20px;
+            margin-bottom: 15px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .chat-message {
+            margin-bottom: 15px;
+            max-width: 80%;
+            padding: 12px 16px;
+            border-radius: 12px;
+            font-size: 14px;
+            line-height: 1.5;
+            word-wrap: break-word;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            align-self: flex-start; /* Por defecto a la izquierda */
+        }
+
+        .chat-message.bot {
+            background-color: #1e293b;
+            color: #f8fafc;
+            border-bottom-left-radius: 2px;
+            border: 1px solid #334155;
+        }
+
+        .chat-message.user {
+            background-color: #0ea5e9;
+            color: #ffffff;
+            border-bottom-right-radius: 2px;
+            align-self: flex-end; /* A la derecha */
+        }
+
+        .chat-message a {
+            color: #38bdf8;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .chat-message a:hover {
+            text-decoration: underline;
+        }
+
+        .chat-message strong {
+            color: #ffffff;
+            font-weight: 600;
+        }
+        
+        .chat-message p {
+            margin-bottom: 8px;
+        }
+        
+        .chat-message p:last-child {
+            margin-bottom: 0;
+        }
+
+        .chat-input-area {
+            width: 100%;
+            display: block;
+            clear: both;
+            padding-top: 10px;
+        }
+
+        .chat-input-table {
+            width: 100%;
+        }
+
+        /* Tablas de Datos */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+            font-size: 14px;
+        }
+
+        @media (max-width: 980px) {
+            .form-col {
+                width: 100%;
+                margin-right: 0;
+            }
+
+            .nav-tabs {
+                padding: 0 15px;
+            }
+
+            .content-section {
+                padding: 15px;
+            }
+
+            .card {
+                padding: 18px;
+            }
+
+            table, thead, tbody, tr, th, td {
+                display: block;
+                width: 100%;
+            }
+
+            thead {
+                display: none;
+            }
+
+            tr {
+                border: 1px solid #e2e8f0;
+                border-radius: 8px;
+                padding: 10px;
+                margin-bottom: 12px;
+                background: #fff;
+            }
+
+            td {
+                border: none;
+                display: flex;
+                justify-content: space-between;
+                gap: 10px;
+                padding: 8px 0;
+            }
+
+            td::before {
+                content: attr(data-label);
+                font-weight: 600;
+                color: #475569;
+            }
+        }
+
+        th {
+            background-color: #f1f5f9;
+            color: #475569;
+            font-weight: 600;
+            text-align: left;
+            padding: 12px;
+            border-bottom: 2px solid #cbd5e1;
+        }
+
+        td {
+            padding: 12px;
+            border-bottom: 1px solid #e2e8f0;
+            color: #333333;
+        }
+
+        tr:hover {
+            background-color: #f8fafc;
+        }
+
+        /* Filtros */
+        .filter-container {
+            background-color: #f8fafc;
+            padding: 15px;
+            border-radius: 6px;
+            border: 1px solid #e2e8f0;
+            margin-bottom: 20px;
+        }
+
+        .badge-area {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .badge-contabilidad { background-color: #fee2e2; color: #991b1b; }
+        .badge-tecnicos { background-color: #e0f2fe; color: #0369a1; }
+        .badge-trabajadores { background-color: #dcfce7; color: #166534; }
+        
+        .badge-contrato { background-color: #fef08a; color: #854d0e; }
+        .badge-indeterminado { background-color: #dbeafe; color: #1e40af; }
+        .badge-temporal { background-color: #f3e8ff; color: #6b21a8; }
+
+        .spinner {
+            border: 3px solid #e2e8f0;
+            border-top: 3px solid #0ea5e9;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            animation: spin 1s linear infinite;
+            display: inline-block;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .alert {
+            padding: 12px 16px;
+            border-radius: 6px;
+            margin-bottom: 15px;
+        }
+
+        .alert-error {
+            background-color: #fee2e2;
+            color: #991b1b;
+            border: 1px solid #fecaca;
+        }
+
+        .alert-success {
+            background-color: #dcfce7;
+            color: #166534;
+            border: 1px solid #bbf7d0;
+        }
+    </style>
+</head>
+<body>
+
+<div class="app-container">
+    <header>
+        <h1>Módulo de Recursos Humanos</h1>
+        <div class="badge">Nómina Inteligente IA</div>
+    </header>
+
+    <div class="nav-tabs">
+        <button class="tab-button active" onclick="switchTab('tab-chatbot')">🤖 Asistente Virtual (Chatbot)</button>
+        <button class="tab-button" onclick="switchTab('tab-nueva-nomina', event)">➕ Crear / Editar Empleado</button>
+        <button class="tab-button" onclick="switchTab('tab-visualizar', event)">📊 Visualizar Todos los Empleados</button>
+    </div>
+
+    <!-- TAB 1: CHATBOT -->
+    <div id="tab-chatbot" class="content-section active">
+        <div class="card">
+            <div class="card-title">Asistente de Inteligencia Artificial</div>
+            <p style="font-size: 14px; color: #64748b; margin-bottom: 15px;">
+                Ingresa los datos de asistencia o solicita cálculos en lenguaje natural. La IA procesará la información reduciendo el margen de error humano.
+            </p>
+            
+            <div class="chat-container" id="chatContainer">
+                <div class="chat-message bot">
+                    ¡Hola! Soy tu asistente automatizado de nóminas. ¿A qué empleado deseas calcularle los haberes hoy? Puedes decirme algo como: <i>"Calcula la nómina de Juan Pérez con 40 horas normales y 5 extras"</i>.
+                </div>
+            </div>
+            
+            <div class="chat-input-area">
+                <table class="chat-input-table">
+                    <tr>
+                        <td style="width: 85%; border: none; padding: 0;">
+                            <input type="text" id="chatInput" placeholder="Escribe tu pregunta..." onkeypress="handleEnter(event)">
+                        </td>
+                        <td style="width: 15%; border: none; padding: 0 0 0 10px;">
+                            <button class="btn" onclick="sendMessage()">Enviar</button>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- TAB 2: CREAR / EDITAR EMPLEADO -->
+    <div id="tab-nueva-nomina" class="content-section">
+        <div class="card">
+            <div class="card-title">Nuevo empleado</div>
+            <p style="font-size: 14px; color: #64748b; margin-bottom: 20px;">
+                Registra el puesto y el departamento del empleado. Puedes además crear nuevos departamentos desde aquí.
+            </p>
+
+            <input type="hidden" id="empleado_id">
+
+            <div class="form-group">
+                <label>Nombre del Empleado:</label>
+                <input type="text" id="empleado_nombre" placeholder="Ej: Juan Pérez">
+            </div>
+
+            <div class="form-row">
+                <div class="form-col">
+                    <label>Tipo de Contrato:</label>
+                    <input type="text" id="puesto" placeholder="Ej: Indeterminado, Temporal">
+                </div>
+                <div class="form-col">
+                    <label>Departamento:</label>
+                    <select id="departamento_select"></select>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-col">
+                    <label>Salario Diario Integrado (SDI $):</label>
+                    <input type="number" id="salario_hora" placeholder="Ej: 500" min="0" step="0.01">
+                </div>
+                <div class="form-col">
+                    <label>Período de Nómina:</label>
+                    <input type="date" id="periodo">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Notas:</label>
+                <input type="text" id="notas" placeholder="Ej: Empleado nuevo del equipo">
+            </div>
+
+            <button class="btn" onclick="guardarEmpleado()">Guardar Empleado</button>
+            <button class="btn btn-secondary" onclick="crearDepartamento()" style="margin-left: 10px;">Agregar Departamento</button>
+            <button class="btn btn-secondary" onclick="limpiarFormulario()" style="margin-left: 10px;">Limpiar</button>
+
+            <div id="resultadoCalculo" style="margin-top: 20px;"></div>
+        </div>
+    </div>
+
+    <!-- TAB 3: VISUALIZAR NÓMINAS -->
+    <div id="tab-visualizar" class="content-section">
+        <div class="card">
+            <div class="card-title">Empleados y nóminas</div>
+            <p style="font-size: 14px; color: #64748b; margin-bottom: 15px;">
+                Aquí aparecen los empleados registrados en la base de datos, con acciones para editar o eliminar.
+            </p>
+
+            <div class="filter-container">
+                <label style="margin-right: 20px;">Filtrar por departamento:</label>
+                <select id="filtro_departamento" onchange="filtrarNominas()">
+                    <option value="">Todos</option>
+                </select>
+            </div>
+
+            <table id="tablaNominas">
+                <thead>
+                    <tr>
+                        <th>Empleado</th>
+                        <th>RFC</th>
+                        <th>Contrato</th>
+                        <th>SDI ($)</th>
+                        <th>Departamento</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody id="nominasBody">
+                    <tr>
+                        <td colspan="6" style="text-align: center; color: #999;">
+                            Cargando empleados...
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Función auxiliar para obtener la clase CSS del badge según departamento
+    function getBadgeClass(departamento) {
+        const mapeo = {
+            'Contabilidad': 'badge-contabilidad',
+            'Técnicos': 'badge-tecnicos',
+            'Trabajadores': 'badge-trabajadores'
+        };
+        return mapeo[departamento] || 'badge-area';
+    }
+
+    // Función para cambiar entre pestañas
+    function switchTab(tabId, event) {
+        // Ocultar todas las secciones
+        const sections = document.querySelectorAll('.content-section');
+        sections.forEach(section => section.classList.remove('active'));
+
+        // Desactivar todos los botones
+        const buttons = document.querySelectorAll('.tab-button');
+        buttons.forEach(button => button.classList.remove('active'));
+
+        // Mostrar la sección seleccionada
+        document.getElementById(tabId).classList.add('active');
+
+        // Activar el botón correspondiente
+        if (event && event.target) {
+            event.target.classList.add('active');
+        }
+
+        // Si es la pestaña de visualizar, cargar las nóminas
+        if (tabId === 'tab-visualizar') {
+            cargarNominas();
+        }
+    }
+
+    // Función para enviar mensaje al chatbot
+    function sendMessage() {
+        const input = document.getElementById('chatInput');
+        const mensaje = input.value.trim();
+
+        if (mensaje === '') return;
+
+        // Agregar mensaje del usuario al chat
+        agregarMensajeChat(mensaje, 'user');
+        input.value = '';
+
+        // Mostrar indicador de carga
+        const container = document.getElementById('chatContainer');
+        const indicadorCarga = document.createElement('div');
+        indicadorCarga.className = 'chat-message bot';
+        indicadorCarga.innerHTML = '<div class="spinner"></div> Procesando...';
+        container.appendChild(indicadorCarga);
+        container.scrollTop = container.scrollHeight;
+
+        // Enviar al servidor
+        fetch('/api/chat', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ mensaje: mensaje })
+        })
+        .then(response => response.json())
+        .then(data => {
+            indicadorCarga.remove();
+            agregarMensajeChat(data.respuesta, 'bot');
+        })
+        .catch(error => {
+            indicadorCarga.remove();
+            agregarMensajeChat('Error al procesar la solicitud: ' + error, 'bot');
+        });
+    }
+
+    // Función para agregar mensajes al chat
+    function agregarMensajeChat(texto, tipo) {
+        const container = document.getElementById('chatContainer');
+        const mensaje = document.createElement('div');
+        mensaje.className = 'chat-message ' + tipo;
+        
+        // Parsear markdown si es el bot
+        if (tipo === 'bot') {
+            mensaje.innerHTML = marked.parse(texto);
+        } else {
+            mensaje.textContent = texto; // Escapar HTML para el usuario
+        }
+        
+        container.appendChild(mensaje);
+        container.scrollTop = container.scrollHeight;
+    }
+
+    // Función para manejar tecla Enter
+    function handleEnter(event) {
+        if (event.key === 'Enter') {
+            sendMessage();
+        }
+    }
+
+    function guardarEmpleado() {
+        const id = document.getElementById('empleado_id').value;
+        const nombre = document.getElementById('empleado_nombre').value.trim();
+        const puesto = document.getElementById('puesto').value.trim();
+        const departamento = document.getElementById('departamento_select').value;
+        const salarioHora = parseFloat(document.getElementById('salario_hora').value) || 0;
+        const vacaciones = 0; // Removido visualmente
+        const periodo = document.getElementById('periodo').value;
+
+        if (!nombre || salarioHora <= 0) {
+            document.getElementById('resultadoCalculo').innerHTML = '<div class="alert alert-error">Completa el nombre y el SDI.</div>';
+            return;
+        }
+
+        const payload = { nombre, puesto, departamento, salario_hora: salarioHora, vacaciones_disponibles: vacaciones, periodo };
+        const metodo = id ? 'PUT' : 'POST';
+
+        fetch(id ? '/api/empleados/' + id : '/api/empleados', {
+            method: metodo,
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        })
+        .then(r => r.json())
+        .then(data => {
+            document.getElementById('resultadoCalculo').innerHTML = '<div class="alert alert-success">' + (data.mensaje || 'Empleado guardado correctamente.') + '</div>';
+            limpiarFormulario();
+            cargarNominas();
+        })
+        .catch(error => {
+            document.getElementById('resultadoCalculo').innerHTML = '<div class="alert alert-danger">Error al guardar el empleado.</div>';
+            console.error(error);
+        });
+    }
+
+    function limpiarFormulario() {
+        document.getElementById('empleado_id').value = '';
+        document.getElementById('empleado_nombre').value = '';
+        document.getElementById('puesto').value = '';
+        document.getElementById('departamento_select').value = '';
+        document.getElementById('salario_hora').value = '';
+        document.getElementById('vacaciones_disponibles').value = '';
+        document.getElementById('periodo').value = '';
+        document.getElementById('notas').value = '';
+        document.getElementById('resultadoCalculo').innerHTML = '';
+    }
+
+    // Función para filtrar nóminas
+    function filtrarNominas() {
+        const filtro = document.getElementById('filtro_departamento').value;
+        const tbody = document.getElementById('nominasBody');
+        fetch('/api/empleados')
+            .then(r => r.json())
+            .then(data => {
+                let empleados = data.empleados || [];
+                if (filtro) {
+                    empleados = empleados.filter(e => (e.departamento || '').toLowerCase() === filtro.toLowerCase());
+                }
+                if (empleados.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; color: #999;">No hay empleados en este puesto.</td></tr>';
+                    return;
+                }
+                renderEmpleados(empleados);
+            });
+    }
+
+    function renderEmpleados(empleados) {
+        const tbody = document.getElementById('nominasBody');
+        let html = '';
+        empleados.forEach(e => {
+            const rfc = e.rfc || 'N/A';
+            const sdi = e.sdi || e.salario_hora || 0;
+            const contrato = e.tipo_contrato || e.puesto || 'N/A';
+            
+            // Elegir badge basado en contrato
+            let badgeClass = 'badge-contrato';
+            if (contrato.toLowerCase().includes('indeterminado')) badgeClass = 'badge-indeterminado';
+            if (contrato.toLowerCase().includes('temporal')) badgeClass = 'badge-temporal';
+            
+            html += `
+                <tr>
+                    <td data-label="Empleado"><strong>${e.nombre}</strong></td>
+                    <td data-label="RFC">${rfc}</td>
+                    <td data-label="Contrato"><span class="badge-area ${badgeClass}">${contrato}</span></td>
+                    <td data-label="SDI" style="text-align:center;">$${sdi.toFixed(2)}</td>
+                    <td data-label="Departamento"><span class="badge-area ${getBadgeClass(e.departamento)}">${e.departamento || 'Sin departamento'}</span></td>
+                    <td data-label="Acciones">
+                        <button class="btn" onclick="editarEmpleado(${e.id})" title="Editar" style="padding: 6px 12px; margin-right: 4px;"><i class="fa fa-pen"></i></button>
+                        <button class="btn btn-secondary" onclick="eliminarEmpleado(${e.id})" title="Eliminar" style="padding: 6px 12px; background-color:#ef4444;"><i class="fa fa-trash"></i></button>
+                    </td>
+                </tr>`;
+        });
+        tbody.innerHTML = html;
+    }
+
+    function editarEmpleado(id) {
+        fetch('/api/empleados')
+            .then(r => r.json())
+            .then(data => {
+                const empleado = (data.empleados || []).find(e => e.id === id);
+                if (!empleado) return;
+                document.getElementById('empleado_id').value = empleado.id;
+                document.getElementById('empleado_nombre').value = empleado.nombre;
+                document.getElementById('puesto').value = empleado.tipo_contrato || empleado.puesto;
+                document.getElementById('departamento_select').value = empleado.departamento || '';
+                document.getElementById('salario_hora').value = empleado.sdi || empleado.salario_hora;
+                document.getElementById('periodo').value = '';
+                document.getElementById('resultadoCalculo').innerHTML = '<div class="alert alert-info">Editando empleado...</div>';
+                switchTab('tab-nueva-nomina');
+            });
+    }
+
+    function eliminarEmpleado(id) {
+        if (!confirm('¿Deseas eliminar este empleado?')) return;
+        fetch('/api/empleados/' + id, { method: 'DELETE' })
+            .then(r => r.json())
+            .then(() => {
+                cargarNominas();
+            });
+    }
+
+    function cargarDepartamentos() {
+        fetch('/api/departamentos')
+            .then(r => r.json())
+            .then(data => {
+                const select = document.getElementById('departamento_select');
+                const filtro = document.getElementById('filtro_departamento');
+                const departamentos = data.departamentos || [];
+                select.innerHTML = '<option value="">-- Selecciona un departamento --</option>';
+                filtro.innerHTML = '<option value="">Todos</option>';
+                departamentos.forEach(d => {
+                    const option = document.createElement('option');
+                    option.value = d.nombre;
+                    option.textContent = d.nombre;
+                    select.appendChild(option.cloneNode(true));
+                    filtro.appendChild(option);
+                });
+            });
+    }
+
+    function crearDepartamento() {
+        Swal.fire({
+            title: 'Nuevo Departamento',
+            input: 'text',
+            inputLabel: 'Nombre del departamento',
+            inputPlaceholder: 'Ej: Marketing',
+            showCancelButton: true,
+            confirmButtonText: 'Guardar',
+            cancelButtonText: 'Cancelar',
+            confirmButtonColor: '#0ea5e9'
+        }).then((result) => {
+            if (result.isConfirmed && result.value.trim()) {
+                const nombre = result.value.trim();
+                fetch('/api/departamentos', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ nombre })
+                })
+                .then(r => r.json())
+                .then(() => {
+                    cargarDepartamentos();
+                    Swal.fire('¡Éxito!', 'Departamento creado correctamente.', 'success');
+                })
+                .catch(() => {
+                    Swal.fire('Error', 'No se pudo crear el departamento.', 'error');
+                });
+            }
+        });
+    }
+
+    function cargarNominas() {
+        fetch('/api/empleados')
+            .then(r => r.json())
+            .then(data => {
+                const empleados = data.empleados || [];
+                renderEmpleados(empleados);
+            });
+    }
+
+    // Enfocar el input del chat al cargar la página
+    window.addEventListener('load', function() {
+        document.getElementById('chatInput').focus();
+        cargarDepartamentos();
+        cargarNominas();
+    });
+</script>
+
+</body>
+</html>

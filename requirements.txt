@@ -1,0 +1,6 @@
+flask==2.3.3
+mysql-connector-python==8.2.0
+groq==0.11.0
+httpx==0.27.2
+python-dotenv==1.0.0
+reportlab==4.2.5

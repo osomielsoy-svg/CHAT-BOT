@@ -1,0 +1,22 @@
+version: '3.8'
+
+services:
+  web:
+    build: .
+    container_name: chatbot_nomina
+    ports:
+      - "5000:5000"
+    env_file:
+      - .env
+    volumes:
+      # Montamos el directorio actual para poder ver los cambios en desarrollo sin reconstruir
+      # y para persistir la base de datos SQLite si se usa localmente.
+      - .:/app
+    environment:
+      - FLASK_ENV=development
+      - FLASK_DEBUG=1
+      # Puedes configurar aquí si usas MySQL externo
+      # - MYSQL_HOST=tu_host_mysql
+      # - MYSQL_USER=root
+      # - MYSQL_PASSWORD=password
+      # - MYSQL_DATABASE=control_nomina
